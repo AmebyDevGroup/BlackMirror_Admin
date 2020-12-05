@@ -10,7 +10,7 @@
 	"database": "redis",
 	"databaseConfig": {
 		"redis": {
-			"port": "6479"
+			"port": "6379"
 		},
 		"sqlite": {
 			"databasePath": "/database/laravel-echo-server.sqlite"

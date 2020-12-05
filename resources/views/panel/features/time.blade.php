@@ -15,12 +15,6 @@
             ]
         ];
     })->toArray();
-    /*
-     * $date_formats = [
-     *   'Y-m-d' => 'YYYY-MM-DD',
-     *   'd-m-Y' => 'DD-MM-YYYY',
-     * ];
-     */
     $date_formats = [
         'Y-m-d' => 'YYYY-MM-DD',
         'd-m-Y' => 'DD-MM-YYYY',

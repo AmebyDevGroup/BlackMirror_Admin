@@ -29,6 +29,9 @@
     ========================================================= -->
 
     <link rel="stylesheet" type="text/css" href="{{asset('css/fullpage.min.css')}}"/>
+
+    <!-- Google AdSense -->
+    <script data-ad-client="ca-pub-3384445987106007" async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script>
     <style>
         body {
             padding: 0;

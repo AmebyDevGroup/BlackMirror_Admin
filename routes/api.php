@@ -22,6 +22,8 @@ Route::group([ 'namespace' => 'Api'], function () {
                 Route::get('changelog', 'DataController@getChangelog');
             });
             Route::group(['prefix' => 'features'], function () {
+                Route::get('/', 'FeaturesController@index');
+                Route::get('/{feature}', 'FeaturesController@show');
                 Route::post('setActive/{feature}/{active?}', 'FeaturesController@setFeatureActive');
             });
         });
@@ -32,9 +34,6 @@ Route::middleware('auth:api')->get('/user', function (Request $request) {
     return $request->user();
 });
 
-//ToDo::Włącz/Wyłącz funkcjonalność
-
-//ToDo::Pobieranie changelog
 
 //ToDo::Formularz kontaktowy
 
