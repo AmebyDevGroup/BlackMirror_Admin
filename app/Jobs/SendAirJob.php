@@ -3,9 +3,9 @@
 namespace App\Jobs;
 
 use App\Events\Message;
-use App\MirrorConfig;
 use Exception;
 use GuzzleHttp\Client;
+use GuzzleHttp\Exception\GuzzleException;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
@@ -24,10 +24,12 @@ class SendAirJob implements ShouldQueue
     protected $getIndexUrl;
 
     protected $channel_name;
+
     /**
      * Create a new job instance.
      *
-     * @return void
+     * @param $feature_config
+     * @param $channel_name
      */
     public function __construct($feature_config, $channel_name)
     {
@@ -41,6 +43,7 @@ class SendAirJob implements ShouldQueue
      * Execute the job.
      *
      * @return void
+     * @throws GuzzleException
      */
     public function handle()
     {
@@ -63,9 +66,9 @@ class SendAirJob implements ShouldQueue
                     'value' => json_decode($sensor->getBody()->getContents())->values[0] ?? false
                 ];
             }
-            return broadcast(new Message('air', $airInfo, $this->channel_name));
+            broadcast(new Message('air', $airInfo, $this->channel_name));
         } catch (Exception $e) {
-            return broadcast(new Message('air', [
+            broadcast(new Message('air', [
                 "status" => 'failed',
                 "message" => $e->getMessage()
             ], $this->channel_name));

@@ -3,7 +3,6 @@
 namespace App\Jobs;
 
 use App\Events\Message;
-use App\MirrorConfig;
 use Carbon\Carbon;
 use GuzzleHttp\Client;
 use Illuminate\Bus\Queueable;
@@ -23,14 +22,15 @@ class SendWeatherJob implements ShouldQueue
     /**
      * Create a new job instance.
      *
-     * @return void
+     * @param $feature_config
+     * @param $channel_name
      */
     public function __construct($feature_config, $channel_name)
     {
         $this->city = $feature_config->data['city'];
         $this->key = env('WEATHER_KEY');
         $this->channel_name = $channel_name;
-    }   
+    }
 
     /**
      * Execute the job.
@@ -58,6 +58,6 @@ class SendWeatherJob implements ShouldQueue
             'icon' => $data->weather[0]->icon,
             'time' => Carbon::parse($data->dt)->format('Y-m-d H:i:s'),
         ];
-        return broadcast(new Message('current_weather', $weatherInfo, $this->channel_name));
+        broadcast(new Message('current_weather', $weatherInfo, $this->channel_name));
     }
 }

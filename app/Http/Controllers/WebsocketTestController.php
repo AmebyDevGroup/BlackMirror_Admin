@@ -14,30 +14,33 @@ use Feeds;
 
 class WebsocketTestController extends Controller
 {
+    /*
+     *
+     */
     public function getData(Feature $feature)
     {
         $feature_config = $feature->getConfig;
         switch ($feature->slug) {
             case "air":
-                return $this->SendAirQuality($feature_config);
+                $this->SendAirQuality($feature_config);
                 break;
             case "calendar":
-                return $this->SendCalendar($feature_config);
+                $this->SendCalendar($feature_config);
                 break;
             case "news":
-                return $this->SendNews($feature_config);
+                $this->SendNews($feature_config);
                 break;
             case "tasks":
-                return $this->SendTasks($feature_config);
+                $this->SendTasks($feature_config);
                 break;
             case "weather":
-                return $this->SendWeather($feature_config);
+                $this->SendWeather($feature_config);
                 break;
             case "covid":
-                return $this->SendCovid($feature_config);
+                $this->SendCovid($feature_config);
                 break;
             case "time":
-                return $this->SendTime($feature_config);
+                $this->SendTime($feature_config);
                 break;
         }
     }
@@ -68,7 +71,6 @@ class WebsocketTestController extends Controller
             }
             broadcast(new Message('air', $airInfo));
             dump(['type'=>'air', 'data'=>$airInfo]);
-//            return response()->json($airInfo);
         } catch (Exception $e) {
             broadcast(new Message('air', [
                 "status" => 'failed',
@@ -78,10 +80,6 @@ class WebsocketTestController extends Controller
                 "status" => 'failed',
                 "message" => $e->getMessage()
             ]]);
-//            return response()->json([
-//                "status" => 'failed',
-//                "message" => $e->getMessage()
-//            ]);
         }
     }
 
@@ -99,7 +97,6 @@ class WebsocketTestController extends Controller
             }
             broadcast(new Message('calendar', $calendar));
             dump(['type'=>'calendar', 'data'=>$calendar]);
-//            return response()->json($calendar);
         } catch (\Exception $e) {
             broadcast(new Message('calendar', [
                 "status" => 'failed',
@@ -109,10 +106,6 @@ class WebsocketTestController extends Controller
                 "status" => 'failed',
                 "message" => $e->getMessage()
             ]]);
-//            return response()->json([
-//                "status" => 'failed',
-//                "message" => $e->getMessage()
-//            ]);
         }
     }
 
@@ -144,7 +137,6 @@ class WebsocketTestController extends Controller
         unset($data['prepared_items']);
         broadcast(new Message('news', $data));
         dump(['type'=>'news', 'data'=>$data]);
-//        return response()->json($data);
     }
 
     public function SendTasks($feature)
@@ -161,7 +153,6 @@ class WebsocketTestController extends Controller
             }
             broadcast(new Message('tasks', $tasks));
             dump(['type'=>'tasks', 'data'=>$tasks]);
-//            return response()->json($tasks);
         } catch (\Exception $e) {
             broadcast(new Message('tasks', [
                 "status" => 'failed',
@@ -171,10 +162,6 @@ class WebsocketTestController extends Controller
                 "status" => 'failed',
                 "message" => $e->getMessage()
             ]]);
-//            return response()->json([
-//                "status" => 'failed',
-//                "message" => $e->getMessage()
-//            ]);
         }
     }
 
@@ -203,7 +190,6 @@ class WebsocketTestController extends Controller
         ];
         broadcast(new Message('current_weather', $weatherInfo));
         dump(['type'=>'current_weather', 'data'=>$weatherInfo]);
-//        return response()->json($weatherInfo);
     }
 
     public function SendCovid($feature)
@@ -241,7 +227,6 @@ class WebsocketTestController extends Controller
         }
         broadcast(new Message('covid', $covidInfo));
         dump(['type'=>'covid', 'data'=>$covidInfo]);
-//        return response()->json($covidInfo);
     }
 
     public function SendTime($feature)
@@ -253,7 +238,6 @@ class WebsocketTestController extends Controller
         ];
         broadcast(new Message('time', $timeInfo, 'mirror.1231'));
         dump(['type'=>'time', 'data'=>$timeInfo]);
-//        return response()->json($timeInfo);
     }
 
 

@@ -18,7 +18,7 @@ class ContactNotification extends Notification
     /**
      * Create a new notification instance.
      *
-     * @return void
+     * @param Request $request
      */
     public function __construct(Request $request)
     {
@@ -40,7 +40,7 @@ class ContactNotification extends Notification
      * Get the mail representation of the notification.
      *
      * @param mixed $notifiable
-     * @return \Illuminate\Notifications\Messages\MailMessage
+     * @return MailMessage
      */
     public function toMail($notifiable)
     {

@@ -12,7 +12,6 @@ use App\Console\Commands\SendCovid;
 
 use App\Console\Commands\RedisSubscribe;
 
-use App\MirrorConfig;
 use App\User;
 use Illuminate\Console\Scheduling\Schedule;
 use Illuminate\Foundation\Console\Kernel as ConsoleKernel;

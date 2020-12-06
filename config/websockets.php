@@ -1,6 +1,5 @@
 <?php
 
-use App\MirrorChannelManager;
 use BeyondCode\LaravelWebSockets\Dashboard\Http\Middleware\Authorize;
 use BeyondCode\LaravelWebSockets\Statistics\Models\WebSocketsStatisticsEntry;
 use BeyondCode\LaravelWebSockets\WebSockets\Channels\ChannelManagers\ArrayChannelManager;
@@ -136,5 +135,4 @@ return [
      * `ChannelManager` interface provided by this package.
      */
     'channel_manager' => ArrayChannelManager::class,
-    'channel_manager' => MirrorChannelManager::class,
 ];

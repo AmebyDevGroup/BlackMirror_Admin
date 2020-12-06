@@ -16,10 +16,10 @@ class ConfigurationController extends BaseController
     public function setPageMode($mode = 'light-mode')
     {
         $user = Auth::user();
-        if(!$user) {
+        if (!$user) {
             abort(403);
         }
-        $user->params = array_merge($user->params??[], ['page-mode'=>$mode]);
+        $user->params = array_merge($user->params ?? [], ['page-mode' => $mode]);
         $user->save();
     }
 
@@ -44,7 +44,7 @@ class ConfigurationController extends BaseController
         if ($feature->getConfig->active) {
             dispatch($feature->getJob($feature->getConfig, 'mirror.123'));
         }
-        return response()->json(['status'=>'success', 'message'=>"Pomyślnie zapisano konfigurację"]);
+        return response()->json(['status' => 'success', 'message' => "Pomyślnie zapisano konfigurację"]);
     }
 
     public function getAirStations()
@@ -52,30 +52,7 @@ class ConfigurationController extends BaseController
         //http://api.gios.gov.pl/pjp-api/rest/station/findAll
         $client = new Client();
         $response = $client->request('GET', 'http://api.gios.gov.pl/pjp-api/rest/station/findAll');
-        return response()->json(collect(json_decode($response->getBody()->getContents()))->sortBy('stationName')->pluck('stationName',
-            'id'));
-    }
-
-    private function initConnection()
-    {
-        $tokenCache = new TokenCache();
-        $accessToken = $tokenCache->getAccessToken();
-        $graph = new Graph();
-        $graph->setApiVersion('beta');
-        $graph->setAccessToken($accessToken);
-        return $graph;
-    }
-
-    public function getTasksFolder($provider)
-    {
-        $folders = ['status' => 'error', 'data'=>'Wybrany dostawca usługi nie jest obsługiwany'];
-        switch ($provider) {
-            case 'microsoft':
-                $folders = app('\App\Http\Controllers\MicrosoftController')->taskFolders();
-                break;
-            default:
-                break;
-        }
-        return response()->json($folders);
+        return response()->json(collect(json_decode($response->getBody()->getContents()))
+            ->sortBy('stationName')->pluck('stationName', 'id'));
     }
 }

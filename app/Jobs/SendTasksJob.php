@@ -27,7 +27,8 @@ class SendTasksJob implements ShouldQueue
     /**
      * Create a new job instance.
      *
-     * @return void
+     * @param $feature_config
+     * @param $channel_name
      */
     public function __construct($feature_config, $channel_name)
     {

@@ -21,9 +21,6 @@ Auth::routes(['register' => true, 'verify' => true]);
 Route::get('/', 'Controller@welcome')->name('home');
 Route::get('/pomoc', 'Controller@help')->name('help');
 
-Route::get('test', function () {
-    dd(\Carbon\Carbon::now()->setTimezone('Europe/Warsaw')->format('Y-m-d H:i:s'));
-});
 Route::prefix('admin')->middleware('auth')->group(function () {
     Route::get('/', 'AdminPanelController@getConfigurationPage')
         ->name('admin.getConfiguration');

@@ -3,7 +3,6 @@
 namespace App\Jobs;
 
 use App\Events\Message;
-use App\MirrorConfig;
 use App\TokenStore\TokenCache;
 use Carbon\Carbon;
 use Exception;
@@ -23,10 +22,12 @@ class SendCalendarJob implements ShouldQueue
     private $provider;
     private $directory;
     private $channel_name;
+
     /**
      * Create a new job instance.
      *
-     * @return void
+     * @param $feature_config
+     * @param $channel_name
      */
     public function __construct($feature_config, $channel_name)
     {
@@ -51,7 +52,7 @@ class SendCalendarJob implements ShouldQueue
             }
             broadcast(new Message('calendar', $this->tasks, $this->channel_name));
         } catch (Exception $e) {
-            return broadcast(new Message('calendar', [
+            broadcast(new Message('calendar', [
                 "status" => 'failed',
                 "message" => $e->getMessage()
             ], $this->channel_name));
@@ -75,34 +76,35 @@ class SendCalendarJob implements ShouldQueue
             if(!is_array($events)) continue;
             $all_events = array_merge($all_events, $events);
         }
-        $formatedEvents = [];
+        $formattedEvents = [];
         foreach ($all_events as $event) {
             $this_event = [
                 'title' => $event->getSubject(),
                 'allDay' => $event->getIsAllDay(),
                 'full_start_date' => Carbon::parse($event->getStart()->getDateTime())->format('Y-m-d H:i:s'),
                 'start' => Carbon::parse(Carbon::now()->format('Y-m-d'))
-                            ->diffInDays(Carbon::parse($event->getStart()->getDateTime()), false),
+                    ->diffInDays(Carbon::parse($event->getStart()->getDateTime()), false),
                 'hour' => $event->getIsAllDay() ? false : Carbon::parse($event->getStart()->getDateTime())
-                            ->format('H:i')
+                    ->format('H:i')
             ];
-            $formatedEvents[] = $this_event;
+            $formattedEvents[] = $this_event;
         }
-        $formatedEvents = collect($formatedEvents)->sortBy('full_start_date')->values();
-        if($formatedEvents->count() > 3){
-            $endDate = $formatedEvents->get(3)['start'];
-            $formatedEvents = $formatedEvents->where('start', '<=', $endDate);
+        $formattedEvents = collect($formattedEvents)->sortBy('full_start_date')->values();
+        if ($formattedEvents->count() > 3) {
+            $endDate = $formattedEvents->get(3)['start'];
+            $formattedEvents = $formattedEvents->where('start', '<=', $endDate);
         }
-        return $formatedEvents;
+        return $formattedEvents;
     }
 
-    private function initMicrosoftConnection()
+    private function initMicrosoftConnection(): Graph
     {
         $tokenCache = new TokenCache();
         $accessToken = $tokenCache->getAccessToken();
         $graph = new Graph();
         $graph->setApiVersion('beta');
         $graph->setAccessToken($accessToken);
+
         return $graph;
     }
 }

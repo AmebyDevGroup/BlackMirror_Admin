@@ -3,7 +3,6 @@
 namespace App\Jobs;
 
 use App\Events\Message;
-use App\MirrorConfig;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
@@ -21,7 +20,8 @@ class SendNewsJob implements ShouldQueue
     /**
      * Create a new job instance.
      *
-     * @return void
+     * @param $feature_config
+     * @param $channel_name
      */
     public function __construct($feature_config, $channel_name)
     {

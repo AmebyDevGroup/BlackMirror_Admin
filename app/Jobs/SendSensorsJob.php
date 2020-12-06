@@ -3,8 +3,6 @@
 namespace App\Jobs;
 
 use App\Events\Message;
-use App\MirrorConfig;
-use Carbon\Carbon;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
@@ -22,7 +20,8 @@ class SendSensorsJob implements ShouldQueue
     /**
      * Create a new job instance.
      *
-     * @return void
+     * @param $feature_config
+     * @param $channel_name
      */
     public function __construct($feature_config, $channel_name)
     {
@@ -38,11 +37,11 @@ class SendSensorsJob implements ShouldQueue
      */
     public function handle()
     {
-        $teimInInfo = [
+        $tempInInfo = [
             'temperature' => (float)24.11,
             'humidity' => (float)41.32,
             'pressure' => (float)1100.1324
         ];
-        broadcast(new Message('sensors', $teimInInfo, $this->channel_name));
+        broadcast(new Message('sensors', $tempInInfo, $this->channel_name));
     }
 }

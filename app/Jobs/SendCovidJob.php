@@ -3,8 +3,6 @@
 namespace App\Jobs;
 
 use App\Events\Message;
-use App\MirrorConfig;
-use Carbon\Carbon;
 use GuzzleHttp\Client;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
@@ -22,7 +20,8 @@ class SendCovidJob implements ShouldQueue
     /**
      * Create a new job instance.
      *
-     * @return void
+     * @param $feature_config
+     * @param $channel_name
      */
     public function __construct($feature_config, $channel_name)
     {
@@ -68,6 +67,6 @@ class SendCovidJob implements ShouldQueue
                 'recovered' => $poland->TotalRecovered,
             ];
         }
-        return broadcast(new Message('covid', $covidInfo, $this->channel_name));
+        broadcast(new Message('covid', $covidInfo, $this->channel_name));
     }
 }

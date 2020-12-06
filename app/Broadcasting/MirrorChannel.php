@@ -31,7 +31,10 @@ class MirrorChannel
         $features_configs = $user->featuresConfiguration()->where('active', 1)->get();
         foreach ($features_configs as $feature_config) {
             $feature = $feature_config->feature;
-            dispatch($feature->getJob($feature_config, $this->normalizeChannelName(request()->channel_name)));
+            $job = $feature->getJob($feature_config, $this->normalizeChannelName(request()->channel_name));
+            if ($job) {
+                dispatch($job);
+            }
         }
         return [
             'user_id' => $user->id,

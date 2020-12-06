@@ -9,7 +9,6 @@ use App\Notifications\ContactNotification;
 use App\Notifications\ContactSendNotification;
 use GuzzleHttp\Client;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Notification;
 use Illuminate\Support\Facades\Validator;
 

@@ -3,7 +3,6 @@
 namespace App\Jobs;
 
 use App\Events\Message;
-use App\MirrorConfig;
 use Exception;
 use GuzzleHttp\Client;
 use Illuminate\Bus\Queueable;
@@ -18,10 +17,12 @@ class SendConfigJob implements ShouldQueue
 
     protected $user;
     protected $channel_name;
+
     /**
      * Create a new job instance.
      *
-     * @return void
+     * @param $user
+     * @param $channel_name
      */
     public function __construct($user, $channel_name)
     {
@@ -38,11 +39,11 @@ class SendConfigJob implements ShouldQueue
     {
         try {
             broadcast(new Message('config',
-                $this->user->getConfig(),
-                $this->channel_name)
+                    $this->user->getConfig(),
+                    $this->channel_name)
             );
         } catch (Exception $e) {
-            return broadcast(new Message('config', [
+            broadcast(new Message('config', [
                 "status" => 'failed',
                 "message" => $e->getMessage()
             ], $this->channel_name));
