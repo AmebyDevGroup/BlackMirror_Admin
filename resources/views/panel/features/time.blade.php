@@ -21,7 +21,7 @@
     ];
     $time_formats = [
         'HH:mm' => 'Format 24 godzinny',
-        'hh:ii A' => 'Format 12 godzinny',
+        'hh:mm A' => 'Format 12 godzinny',
     ];
     $current_timezone = $config->data['timezone']??'';
     // $current_date_format = $config->data['date-format']??'';

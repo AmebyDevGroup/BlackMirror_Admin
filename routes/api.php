@@ -17,7 +17,7 @@ Route::group([ 'namespace' => 'Api'], function () {
     Route::group(['prefix' => 'v1', 'namespace' => 'V1'], function () {
         Route::post('login', 'AuthController@login');
 
-        Route::middleware('auth:api')->group(function() {
+        Route::middleware('auth:api')->group(function () {
             Route::group(['prefix' => 'data'], function () {
                 Route::get('changelog', 'DataController@getChangelog');
             });
@@ -26,6 +26,9 @@ Route::group([ 'namespace' => 'Api'], function () {
                 Route::get('/{feature}', 'FeaturesController@show');
                 Route::post('setActive/{feature}/{active?}', 'FeaturesController@setFeatureActive');
             });
+        });
+        Route::group(['prefix' => 'receive_data'], function () {
+            Route::post('sensor/{serial}', 'ReceiveDataController@saveSensorData');
         });
     });
 });

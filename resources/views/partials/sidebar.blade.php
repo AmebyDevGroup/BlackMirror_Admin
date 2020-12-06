@@ -2,6 +2,7 @@
     $menu = [
         'admin.getConfiguration' => ['name' => 'Elementy na lustrze', 'icon' => 'fa fa-tachometer-alt'],
         'admin.getExternalAccounts' => ['name' => 'Zewnętrzne konta', 'icon' => 'fa fa-user-circle'],
+        'admin.getDevices' => ['name' => 'Urządzenia', 'icon' => 'fa fa-chalkboard-teacher'],
         'admin.getWebsocketsTest' => ['name' => 'Test API', 'icon' => 'fa fa-cogs'],
         'admin.getHelp' => ['name' => 'Instrukcja', 'icon' => 'fa fa-book'],
         'admin.info' => ['name' => 'Informacje', 'icon' => 'fa fa-info-circle'],

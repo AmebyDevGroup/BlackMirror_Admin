@@ -43,7 +43,7 @@ class User extends Authenticatable implements MustVerifyEmail
         'params' => 'json'
     ];
 
-    public function featuresConfiguration()
+    public function featuresConfiguration(): \Illuminate\Database\Eloquent\Relations\HasMany
     {
         return $this->hasMany(FeatureConfig::class)->with('feature')->with('feature');
     }
@@ -51,5 +51,10 @@ class User extends Authenticatable implements MustVerifyEmail
     public function getConfig()
     {
         return $this->featuresConfiguration->pluck('active', 'feature.slug')->toArray();
+    }
+
+    public function mirrors(): \Illuminate\Database\Eloquent\Relations\HasMany
+    {
+        return $this->hasMany(Mirror::class);
     }
 }

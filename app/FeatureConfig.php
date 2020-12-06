@@ -18,7 +18,7 @@ class FeatureConfig extends Model
         'active' => 'boolean'
     ];
 
-    public function feature()
+    public function feature(): \Illuminate\Database\Eloquent\Relations\BelongsTo
     {
         return $this->belongsTo(Feature::class);
     }

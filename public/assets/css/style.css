@@ -1286,6 +1286,10 @@ fieldset[disabled].btn-zaloguj.focus {
     color: #ccc;
 }
 
+.dark-mode tr {
+    border-bottom: 1px solid #006d65;
+}
+
 /*PINK MODE - PO CO?*/
 .night .ico {
     color: #43b1a9;
@@ -1316,12 +1320,84 @@ fieldset[disabled].btn-zaloguj.focus {
     background-color: #ff00ea;
     color: #fff;
 }
+
 .pink-mode .details > a,
 .pink-mode .darkblue-panel h5 {
     color: #fff;
 }
+
 .pink-mode .btn-info,
 .pink-mode .site-footer {
     background: #ff00ea;
     color: #fff;
+}
+
+tr:last-child {
+    border: none !important;
+}
+
+tr {
+    border-bottom: 1px solid #4ECDC4;
+
+}
+
+tbody {
+    color: #f2f3f4
+}
+
+th {
+    color: white;
+    font-weight: bold;
+    white-space: -moz-pre-wrap !important; /* Mozilla, since 1999 */
+    white-space: -pre-wrap; /* Opera 4-6 */
+    white-space: -o-pre-wrap; /* Opera 7 */
+    white-space: pre-wrap; /* css-3 */
+    word-wrap: break-word; /* Internet Explorer 5.5+ */
+    white-space: -webkit-pre-wrap; /* Newer versions of Chrome/Safari*/
+    word-break: break-all;
+    white-space: normal;
+    padding: 15px;
+}
+
+td {
+
+    color: white;
+    white-space: -moz-pre-wrap !important; /* Mozilla, since 1999 */
+    white-space: -pre-wrap; /* Opera 4-6 */
+    white-space: -o-pre-wrap; /* Opera 7 */
+    white-space: pre-wrap; /* css-3 */
+    word-wrap: break-word; /* Internet Explorer 5.5+ */
+    white-space: -webkit-pre-wrap; /* Newer versions of Chrome/Safari*/
+    word-break: break-all;
+    white-space: normal;
+}
+
+table {
+    overflow-x: auto;
+    table-layout: fixed;
+}
+
+.devi {
+    color: #fff;
+    background-color: #444c57;
+    border-color: #fff;
+
+}
+
+.devi:focus {
+    color: #fff;
+    background-color: #444c57;
+    border-color: #fff;
+}
+
+.devi:hover {
+    color: #fff;
+    background-color: #444c57;
+    border-color: #fff;
+}
+
+.devi:active {
+    color: #fff;
+    background-color: #444c57;
+    border-color: #fff;
 }

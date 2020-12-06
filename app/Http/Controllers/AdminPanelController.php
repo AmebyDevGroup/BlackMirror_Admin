@@ -34,12 +34,17 @@ class AdminPanelController
         return view('panel.external-accounts', $data);
     }
 
+    public function getDevices()
+    {
+        return view('panel.devices', ['devices' => auth()->user()->mirrors]);
+    }
+
     public function getWebsocketsTestPage()
     {
         $features = Feature::whereHas('config', function ($q) {
-            $q->where('active',1);
+            $q->where('active', 1);
         })->orderBy('ordering')->get();
-        return view('panel.test-websockets', ['features'=>$features]);
+        return view('panel.test-websockets', ['features' => $features]);
     }
 
     public function getHelpPage()

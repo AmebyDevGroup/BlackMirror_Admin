@@ -2,8 +2,11 @@
 
 namespace App\Providers;
 
+use App\User;
 use Illuminate\Foundation\Support\Providers\AuthServiceProvider as ServiceProvider;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Gate;
+use Illuminate\Support\Str;
 
 class AuthServiceProvider extends ServiceProvider
 {
@@ -25,6 +28,18 @@ class AuthServiceProvider extends ServiceProvider
     {
         $this->registerPolicies();
 
-        //
+        Auth::viaRequest('mirror-sn', function ($request) {
+            $serial = $request->header('Authorization', '');
+            if (Str::startsWith($serial, 'SN ')) {
+                $serial = Str::substr($serial, 3);
+            }
+            if ($serial != "") {
+                return User::whereHas('mirrors', function ($q) use ($serial) {
+                    $q->where('serial', $serial);
+                })->first();
+            }
+
+            return null;
+        });
     }
 }

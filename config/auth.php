@@ -46,6 +46,11 @@ return [
             'provider' => 'users',
             'hash' => false,
         ],
+
+        'serial' => [
+            'driver' => 'mirror-sn',
+            'provider' => 'users'
+        ]
     ],
 
     /*

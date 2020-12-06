@@ -41,7 +41,8 @@ class SendTimeJob implements ShouldQueue
         $timeInfo = [
             'timestamp' => Carbon::now()->setTimezone($this->config['timezone'])->timestamp,
             'timezone' => $this->config['timezone'],
-            'time_format' => $this->config['time-format']
+            'time_format' => $this->config['time-format'],
+            'isBritishTime' => $this->config['time-format'] == "HH:mm" ? false : true
         ];
         broadcast(new Message('time', $timeInfo, $this->channel_name));
     }

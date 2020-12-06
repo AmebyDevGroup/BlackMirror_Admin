@@ -19,7 +19,7 @@ class Feature extends Model
         'base_config' => 'array',
     ];
 
-    public function getRouteKeyName()
+    public function getRouteKeyName(): string
     {
         return 'slug';
     }
@@ -43,11 +43,11 @@ class Feature extends Model
 
     public function configurationForm()
     {
-        if(view()->exists('panel.features.'.$this->slug)) {
-            return view('panel.features.'.$this->slug, ['feature' => $this, 'config' => $this->getConfig]);
-        } else {
-            return view('panel.features.default', ['feature' => $this, 'config' => $this->getConfig]);
+        if (view()->exists('panel.features.' . $this->slug)) {
+            return view('panel.features.' . $this->slug, ['feature' => $this, 'config' => $this->getConfig]);
         }
+
+        return view('panel.features.default', ['feature' => $this, 'config' => $this->getConfig]);
     }
 
     public function getJob($feature_config, $channel_name)
