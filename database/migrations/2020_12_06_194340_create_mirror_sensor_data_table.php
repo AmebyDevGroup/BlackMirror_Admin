@@ -17,7 +17,7 @@ class CreateMirrorSensorDataTable extends Migration
             $table->bigIncrements('id');
             $table->unsignedBigInteger('mirror_id');
             $table->string('source');
-            $table->json('data');
+            $table->longText('data');
             $table->timestamps();
 
             $table->foreign('mirror_id')
