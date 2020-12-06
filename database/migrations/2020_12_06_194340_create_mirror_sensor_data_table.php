@@ -16,6 +16,8 @@ class CreateMirrorSensorDataTable extends Migration
         Schema::create('mirror_sensor_data', function (Blueprint $table) {
             $table->bigIncrements('id');
             $table->unsignedBigInteger('mirror_id');
+            $table->string('source');
+            $table->json('data');
             $table->timestamps();
 
             $table->foreign('mirror_id')
