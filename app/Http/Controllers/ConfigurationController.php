@@ -29,7 +29,10 @@ class ConfigurationController extends BaseController
         $feature->getConfig->update(['active' => (int)$active]);
         dispatch(new SendConfigJob(auth()->user(), 'mirror.123'));
         if ($active == 1 && $old_active != $active) {
-            dispatch($feature->getJob($feature->getConfig, 'mirror.123'));
+            $job = $feature->getJob($feature->getConfig, 'mirror.123');
+            if ($job) {
+                dispatch($job);
+            }
         }
     }
 

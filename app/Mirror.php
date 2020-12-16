@@ -17,4 +17,14 @@ class Mirror extends Model
     {
         return $this->belongsTo(User::class);
     }
+
+    public function sensorData(): \Illuminate\Database\Eloquent\Relations\HasMany
+    {
+        return $this->hasMany(MirrorSensorData::class);
+    }
+
+    public function getSensorData(string $source): \Illuminate\Database\Eloquent\Collection
+    {
+        return $this->sensorData()->where('source', $source)->get();
+    }
 }

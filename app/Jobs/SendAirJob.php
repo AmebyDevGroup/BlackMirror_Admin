@@ -11,6 +11,7 @@ use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
+use Illuminate\Support\Facades\Cache;
 
 class SendAirJob implements ShouldQueue
 {
@@ -22,7 +23,7 @@ class SendAirJob implements ShouldQueue
     protected $getSensorUrl;
     // http://api.gios.gov.pl/pjp-api/rest/aqindex/getIndex/{stationId}
     protected $getIndexUrl;
-
+    protected $stationId;
     protected $channel_name;
 
     /**
@@ -33,6 +34,7 @@ class SendAirJob implements ShouldQueue
      */
     public function __construct($feature_config, $channel_name)
     {
+        $this->stationId = $feature_config->data['station'] ?? '';
         $this->getIndexUrl = "http://api.gios.gov.pl/pjp-api/rest/aqindex/getIndex/" . $feature_config->data['station'] ?? '';
         $this->getStationUrl = "http://api.gios.gov.pl/pjp-api/rest/station/sensors/" . $feature_config->data['station'] ?? '';
         $this->getSensorUrl = "http://api.gios.gov.pl/pjp-api/rest/data/getData/";
@@ -48,24 +50,27 @@ class SendAirJob implements ShouldQueue
     public function handle()
     {
         try {
-            $client = new Client();
-            $airInfo = [];
-            $response = $client->request('GET', $this->getIndexUrl);
-            $data = json_decode($response->getBody()->getContents());
-            $airInfo['main'] = [
-                'date' => $data->stCalcDate,
-                'quality_id' => $data->stIndexLevel->id,
-                'quality_message' => $data->stIndexLevel->indexLevelName,
-            ];
-            $response = $client->request('GET', $this->getStationUrl);
-            foreach (json_decode($response->getBody()->getContents()) as $station) {
-                $sensor = $client->request('GET', $this->getSensorUrl . $station->id);
-                $airInfo['details'][] = [
-                    'name' => ucfirst($station->param->paramName),
-                    'code' => $station->param->paramCode,
-                    'value' => json_decode($sensor->getBody()->getContents())->values[0] ?? false
+            $airInfo = Cache::remember('JOB::SendAirData_' . $this->stationId, 7200, function () {
+                $client = new Client();
+                $airInfo = [];
+                $response = $client->request('GET', $this->getIndexUrl);
+                $data = json_decode($response->getBody()->getContents());
+                $airInfo['main'] = [
+                    'date' => $data->stCalcDate,
+                    'quality_id' => $data->stIndexLevel->id,
+                    'quality_message' => $data->stIndexLevel->indexLevelName,
                 ];
-            }
+                $response = $client->request('GET', $this->getStationUrl);
+                foreach (json_decode($response->getBody()->getContents()) as $station) {
+                    $sensor = $client->request('GET', $this->getSensorUrl . $station->id);
+                    $airInfo['details'][] = [
+                        'name' => ucfirst($station->param->paramName),
+                        'code' => $station->param->paramCode,
+                        'value' => json_decode($sensor->getBody()->getContents())->values[0] ?? false
+                    ];
+                }
+                return $airInfo;
+            });
             broadcast(new Message('air', $airInfo, $this->channel_name));
         } catch (Exception $e) {
             broadcast(new Message('air', [

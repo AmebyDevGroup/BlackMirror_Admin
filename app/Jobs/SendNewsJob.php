@@ -9,6 +9,7 @@ use Illuminate\Foundation\Bus\Dispatchable;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
 use Feeds;
+use Illuminate\Support\Facades\Cache;
 
 class SendNewsJob implements ShouldQueue
 {
@@ -36,30 +37,38 @@ class SendNewsJob implements ShouldQueue
      */
     public function handle()
     {
-        $feed = Feeds::make($this->rss, 5, true); // if RSS Feed has invalid mime types, force to read
-        $data = array(
-            'title' => $feed->get_title(),
-            'permalink' => $feed->get_permalink(),
-            'items' => $feed->get_items(),
-        );
-        foreach ($data['items'] as $key => $item) {
-            $title = preg_replace('/\s+/S', " ", $item->get_title());
-            $description = ltrim(preg_replace('/\s+/S', " ", strip_tags($item->get_description())));
-            $content = preg_replace('/\s+/S', " ", $item->get_content());
-            $data['prepared_items'][] =
-                [
-                    "date" => $item->get_date('Y-m-d H:i:s'),
-                    "id" => $item->get_id(),
-                    "title" => $title,
-                    "description" => $description,
-                    "content" => $content,
-                ];
-            if ($key > 5) {
-                break;
-            }
+        try {
+            $data = Cache::remember('JOB::SendNewsData', 7200, function () {
+                $feed = Feeds::make($this->rss, 5, true); // if RSS Feed has invalid mime types, force to read
+                $data = array(
+                    'title' => $feed->get_title(),
+                    'permalink' => $feed->get_permalink(),
+                    'items' => [],
+                );
+                foreach ($feed->get_items() as $key => $item) {
+                    $title = preg_replace('/\s+/S', " ", $item->get_title());
+                    $description = ltrim(preg_replace('/\s+/S', " ", strip_tags($item->get_description())));
+                    $content = preg_replace('/\s+/S', " ", $item->get_content());
+                    $data['items'][] =
+                        [
+                            "date" => $item->get_date('Y-m-d H:i:s'),
+                            "id" => $item->get_id(),
+                            "title" => $title,
+                            "description" => $description,
+                            "content" => $content,
+                        ];
+                    if ($key > 5) {
+                        break;
+                    }
+                }
+                return $data;
+            });
+            broadcast(new Message('news', $data, $this->channel_name));
+        } catch (Exception $e) {
+            broadcast(new Message('news', [
+                "status" => 'failed',
+                "message" => $e->getMessage()
+            ], $this->channel_name));
         }
-        $data['items'] = $data['prepared_items'];
-        unset($data['prepared_items']);
-        broadcast(new Message('news', $data, $this->channel_name));
     }
 }

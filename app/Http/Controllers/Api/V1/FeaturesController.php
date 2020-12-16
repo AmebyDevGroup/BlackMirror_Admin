@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Api\V1;
 use App\Feature;
 use App\Jobs\SendConfigJob;
 use App\WeatherCity;
+use Carbon\CarbonTimeZone;
 use Exception;
 use Carbon\Carbon;
 use GuzzleHttp\Client;
@@ -32,11 +33,14 @@ class FeaturesController extends BaseController
                 ] : null
             ];
         }
+
         return response()->json([
             'success' => true,
             'message' => null,
             'data' => $response
-        ], 200);
+        ], 200, [], JSON_UNESCAPED_UNICODE);
+
+
     }
 
     public function show(Feature $feature)
@@ -71,8 +75,8 @@ class FeaturesController extends BaseController
                 break;
             default:
                 $response = [];
-
         }
+
         return response()->json([
             'success' => true,
             'message' => null,
@@ -110,20 +114,21 @@ class FeaturesController extends BaseController
     private function getTimeConfigData()
     {
         return Cache::remember('API::TimeConfig', 2678400, function () {
-            $timezones = collect(\Carbon\CarbonTimeZone::listIdentifiers())->mapToGroups(function ($value, $key) {
+            $timezones = collect(CarbonTimeZone::listIdentifiers())->mapToGroups(function ($value, $key) {
                 $exploded = explode('/', $value);
                 if ($exploded[1] ?? false) {
                     return [
                         $exploded[0] => [
                             'name' => $exploded[1],
-                            'offset' => \Carbon\CarbonTimeZone::instance($value)->toOffsetName()
+                            'offset' => CarbonTimeZone::instance($value)->toOffsetName()
                         ]
                     ];
                 }
-                return [$value => [
-                    'name' => $value,
-                    'offset' => \Carbon\CarbonTimeZone::instance($value)->toOffsetName()
-                ]
+                return [
+                    $value => [
+                        'name' => $value,
+                        'offset' => CarbonTimeZone::instance($value)->toOffsetName()
+                    ]
                 ];
             })->toArray();
             $date_formats = [
@@ -132,7 +137,7 @@ class FeaturesController extends BaseController
             ];
             $time_formats = [
                 'HH:mm' => 'Format 24 godzinny',
-                'hh:ii A' => 'Format 12 godzinny',
+                'hh:mm A' => 'Format 12 godzinny',
             ];
 
             return [

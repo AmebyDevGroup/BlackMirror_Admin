@@ -9,6 +9,7 @@ use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
+use Illuminate\Support\Facades\Cache;
 
 class SendCovidJob implements ShouldQueue
 {
@@ -36,37 +37,40 @@ class SendCovidJob implements ShouldQueue
      */
     public function handle()
     {
-        $client = new Client();
-        $response = $client->request('GET',
-            'https://api.covid19api.com/summary');
-        $data = json_decode($response->getBody()->getContents());
-        $collection = collect($data->Countries);
+        try {
+            [$global, $poland] = Cache::remember('JOB::SendCovidData', 43200, function () {
+                $client = new Client();
+                $response = $client->request('GET',
+                    'https://api.covid19api.com/summary');
+                $data = json_decode($response->getBody()->getContents());
+                $collection = collect($data->Countries);
+                $poland_item = $collection->where('Country', 'Poland')->first();
 
-        $total_confirmed = 0;
-        $total_deaths = 0;
-        $total_recovered = 0;
-        foreach($collection as $country) {
-            $total_confirmed += (int)$country->TotalConfirmed;
-            $total_deaths += (int)$country->TotalDeaths;
-            $total_recovered += (int)$country->TotalRecovered;
+                $global = [
+                    'confirmed' => (int)$data->Global->TotalConfirmed,
+                    'deaths' => (int)$data->Global->TotalDeaths,
+                    'recovered' => (int)$data->Global->TotalRecovered
+                ];
+                $poland = [
+                    'confirmed' => $poland_item->TotalConfirmed,
+                    'deaths' => $poland_item->TotalDeaths,
+                    'recovered' => $poland_item->TotalRecovered,
+                ];
+                return [$global, $poland];
+            });
+            $covidInfo = [];
+            if ($this->config->data['type'] == 1 || $this->config->data['type'] == 3) {
+                $covidInfo['global'] = $global;
+            }
+            if ($this->config->data['type'] == 2 || $this->config->data['type'] == 3) {
+                $covidInfo['poland'] = $poland;
+            }
+            broadcast(new Message('covid', $covidInfo, $this->channel_name));
+        } catch (Exception $e) {
+            broadcast(new Message('covid', [
+                "status" => 'failed',
+                "message" => $e->getMessage()
+            ], $this->channel_name));
         }
-        $poland = $collection->where('Country', 'Poland')->first();
-
-        $covidInfo = [];
-        if($this->config->data['type'] == 1 || $this->config->data['type'] == 3) {
-            $covidInfo['global'] = [
-                'confirmed' => $total_confirmed,
-                'deaths' => $total_deaths,
-                'recovered' => $total_recovered,
-            ];
-        }
-        if($this->config->data['type'] == 2 || $this->config->data['type'] == 3) {
-            $covidInfo['poland'] = [
-                'confirmed' => $poland->TotalConfirmed,
-                'deaths' => $poland->TotalDeaths,
-                'recovered' => $poland->TotalRecovered,
-            ];
-        }
-        broadcast(new Message('covid', $covidInfo, $this->channel_name));
     }
 }
