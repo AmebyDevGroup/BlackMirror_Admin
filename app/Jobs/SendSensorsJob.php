@@ -3,6 +3,7 @@
 namespace App\Jobs;
 
 use App\Events\Message;
+use App\Mirror;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
@@ -37,11 +38,33 @@ class SendSensorsJob implements ShouldQueue
      */
     public function handle()
     {
-        $tempInInfo = [
-            'temperature' => (float)24.11,
-            'humidity' => (float)41.32,
-            'pressure' => (float)1100.1324
-        ];
-        broadcast(new Message('sensors', $tempInInfo, $this->channel_name));
+        $mirrorSN = explode('.', $this->channel_name);
+        $mirror = Mirror::where('serial', $mirrorSN[1] ?? null)->first();
+        if ($mirror) {
+            $sensorData = $mirror->sensorData()
+                ->where('source', 'temp_sensor')
+                ->orderBy('created_at', 'DESC')
+                ->first();
+            if ($sensorData) {
+                $tempInInfo = [
+                    'temperature' => (float)round($sensorData->data['temp'], 2),
+                    'humidity' => (float)round($sensorData->data['humidity'], 2),
+                    'pressure' => (float)round($sensorData->data['pressure'], 4)
+                ];
+            } else {
+                $tempInInfo = [
+                    'temperature' => (float)0.00,
+                    'humidity' => (float)0.00,
+                    'pressure' => (float)0.00
+                ];
+            }
+            broadcast(new Message('sensors', $tempInInfo, $this->channel_name));
+        } else {
+            broadcast(new Message('sensors', [
+                "status" => 'failed',
+                "message" => "Mirror doesn't exist"
+            ], $this->channel_name));
+        }
+
     }
 }

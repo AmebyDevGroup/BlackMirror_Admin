@@ -27,11 +27,13 @@ class ConfigurationController extends BaseController
     {
         $old_active = $feature->getConfig->active;
         $feature->getConfig->update(['active' => (int)$active]);
-        dispatch(new SendConfigJob(auth()->user(), 'mirror.123'));
-        if ($active == 1 && $old_active != $active) {
-            $job = $feature->getJob($feature->getConfig, 'mirror.123');
-            if ($job) {
-                dispatch($job);
+        foreach (auth()->user()->mirrors as $mirror) {
+            dispatch(new SendConfigJob(auth()->user(), 'mirror.' . $mirror->serial));
+            if ($active == 1 && $old_active != $active) {
+                $job = $feature->getJob($feature->getConfig, 'mirror.' . $mirror->serial);
+                if ($job) {
+                    dispatch($job);
+                }
             }
         }
     }
@@ -45,7 +47,9 @@ class ConfigurationController extends BaseController
     {
         $feature->getConfig()->update($request->except('_token'));
         if ($feature->getConfig->active) {
-            dispatch($feature->getJob($feature->getConfig, 'mirror.123'));
+            foreach (auth()->user()->mirrors as $mirror) {
+                dispatch($feature->getJob($feature->getConfig, 'mirror.' . $mirror->serial));
+            }
         }
         return response()->json(['status' => 'success', 'message' => "Pomyślnie zapisano konfigurację"]);
     }

@@ -19,7 +19,7 @@ class FeaturesController extends BaseController
         $features = Feature::with('config')->orderBy('ordering')->get();
         $response = [];
         foreach ($features as $feature) {
-            $response[$feature->id] = [
+            $response[] = [
                 "id" => $feature->id,
                 "slug" => $feature->slug,
                 "name" => $feature->name,
@@ -39,8 +39,6 @@ class FeaturesController extends BaseController
             'message' => null,
             'data' => $response
         ], 200, [], JSON_UNESCAPED_UNICODE);
-
-
     }
 
     public function show(Feature $feature)
