@@ -47,14 +47,14 @@ class SendCovidJob implements ShouldQueue
                 $poland_item = $collection->where('Country', 'Poland')->first();
 
                 $global = [
-                    'confirmed' => (int)$data->Global->TotalConfirmed,
-                    'deaths' => (int)$data->Global->TotalDeaths,
-                    'recovered' => (int)$data->Global->TotalRecovered
+                    'confirmed' => $this->nice_number($data->Global->TotalConfirmed),
+                    'deaths' => $this->nice_number($data->Global->TotalDeaths),
+                    'recovered' => $this->nice_number($data->Global->TotalRecovered),
                 ];
                 $poland = [
-                    'confirmed' => $poland_item->TotalConfirmed,
-                    'deaths' => $poland_item->TotalDeaths,
-                    'recovered' => $poland_item->TotalRecovered,
+                    'confirmed' => $this->nice_number($poland_item->TotalConfirmed),
+                    'deaths' => $this->nice_number($poland_item->TotalDeaths),
+                    'recovered' => $this->nice_number($poland_item->TotalRecovered),
                 ];
                 return [$global, $poland];
             });
@@ -72,5 +72,17 @@ class SendCovidJob implements ShouldQueue
                 "message" => $e->getMessage()
             ], $this->channel_name));
         }
+    }
+
+    private function nice_number($n)
+    {
+        $n = (0 + str_replace(",", "", $n));
+        if (!is_numeric($n)) return false;
+        if ($n > 1000000000000) return round(($n / 1000000000000), 2) . ' bln';
+        elseif ($n > 1000000000) return round(($n / 1000000000), 2) . ' mld';
+        elseif ($n > 1000000) return round(($n / 1000000), 2) . ' mln';
+        elseif ($n > 1000) return round(($n / 1000), 2) . ' tys';
+
+        return number_format($n);
     }
 }

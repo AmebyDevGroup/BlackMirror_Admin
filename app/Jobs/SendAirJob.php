@@ -58,7 +58,7 @@ class SendAirJob implements ShouldQueue
                 $airInfo['main'] = [
                     'date' => $data->stCalcDate,
                     'quality_id' => $data->stIndexLevel->id,
-                    'quality_message' => $data->stIndexLevel->indexLevelName,
+                    'quality_message' => $this->getNormalizedIndexName($data->stIndexLevel->indexLevelName),
                 ];
                 $response = $client->request('GET', $this->getStationUrl);
                 foreach (json_decode($response->getBody()->getContents()) as $station) {
@@ -77,6 +77,28 @@ class SendAirJob implements ShouldQueue
                 "status" => 'failed',
                 "message" => $e->getMessage()
             ], $this->channel_name));
+        }
+    }
+
+    private function getNormalizedIndexName($value)
+    {
+        switch ($value) {
+            case('Bardzo dobry'):
+                return "Bardzo dobra";
+            case('Dobry'):
+                return "Dobra";
+            case('Umiarkowany'):
+                return "Umiarkowana";
+            case('Dostateczny'):
+                return "Dostateczna";
+            case('Zły'):
+                return "Zła";
+            case('Bardzo zły'):
+                return "Bardzo zła";
+            case('Brak indeksu'):
+                return "Brak danych";
+            default:
+                return "Stan nieznany";
         }
     }
 }
