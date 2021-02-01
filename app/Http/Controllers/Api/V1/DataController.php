@@ -18,15 +18,15 @@ class DataController extends BaseController
                 $response = $client->request('GET',
                     'https://api.github.com/repos/AmebyDevGroup/BlackMirror/commits');
                 $data = json_decode($response->getBody()->getContents());
-                $commits = collect(array_slice($data, 0, 12))->pluck('commit')->map(function ($item) {
-                    return [
-                        'author' => $item->author->name,
-                        'date' => Carbon::parse($item->author->date)->format('Y-m-d H:i:s'),
-                        'message' => $item->message
-                    ];
-                });
-
-                return $commits;
+                return collect(array_slice($data, 0, 12))
+                    ->pluck('commit')
+                    ->map(function ($item) {
+                        return [
+                            'author' => $item->author->name,
+                            'date' => Carbon::parse($item->author->date)->format('Y-m-d H:i:s'),
+                            'message' => $item->message
+                        ];
+                    });
             });
 
             return response()->json([
