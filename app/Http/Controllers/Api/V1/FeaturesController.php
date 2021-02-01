@@ -43,6 +43,7 @@ class FeaturesController extends BaseController
 
     public function show(Feature $feature)
     {
+        $feature->load('config');
         switch ($feature->slug) {
             case "time":
                 $response = $this->getTimeConfigData();
@@ -90,9 +91,11 @@ class FeaturesController extends BaseController
         try {
             $old_active = $feature->getConfig->active;
             $feature->getConfig->update(['active' => (int)$active]);
-            dispatch(new SendConfigJob(auth()->user(), 'mirror.123'));
-            if ($active == 1 && $old_active != $active) {
-                dispatch($feature->getJob($feature->getConfig, 'mirror.123'));
+            foreach (auth()->user()->mirrors as $mirror) {
+                dispatch(new SendConfigJob(auth()->user(), 'mirror.' . $mirror->serial));
+                if ($active == 1 && $old_active != $active) {
+                    dispatch($feature->getJob($feature->getConfig, 'mirror.' . $mirror->serial));
+                }
             }
             $active_message = $active ? 'włączony' : 'wyłączony';
             return response()->json([

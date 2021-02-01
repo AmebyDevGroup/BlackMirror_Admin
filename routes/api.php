@@ -29,6 +29,7 @@ Route::group([ 'namespace' => 'Api'], function () {
         });
         Route::group(['prefix' => 'receive_data'], function () {
             Route::post('sensor/{serial}', 'ReceiveDataController@saveSensorData');
+            Route::post('camera/{serial}', 'ReceiveDataController@saveCameraData');
         });
     });
 });
