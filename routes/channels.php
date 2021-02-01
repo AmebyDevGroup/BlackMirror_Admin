@@ -14,12 +14,4 @@
 use Illuminate\Support\Facades\Broadcast;
 use App\Broadcasting\MirrorChannel;
 
-Broadcast::channel('App.User.{id}', function ($user, $id) {
-    return (int)$user->id === (int)$id;
-});
-
 Broadcast::channel('mirror.{user_id}', MirrorChannel::class);
-
-Broadcast::channel('mirror2', function ($user) {
-    return ['id' => $user->id, 'name' => $user->name, 'test' => 'aaa'];
-});
