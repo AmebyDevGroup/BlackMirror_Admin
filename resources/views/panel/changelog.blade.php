@@ -5,7 +5,7 @@
     <hr>
     <div class="dbp-p row">
         @foreach($commits as $app => $commits)
-            <div class="col-12 col-sm-6 col-md-4">
+            <div class="col-12 col-md-6 col-lg-4 dbp-p">
                 <div class="darkblue-panel">
                     <div class="darkblue-header">
                         <h5>{{ $app }}</h5>
