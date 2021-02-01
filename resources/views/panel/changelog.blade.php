@@ -3,7 +3,7 @@
 @section('content')
     <h4 class="header-main">DZIENNIK ZMIAN</h4>
     <hr>
-    <div class="dbp-p row">
+    <div class="row">
         @foreach($commits as $app => $commits)
             <div class="col-12 col-md-6 col-lg-4 dbp-p">
                 <div class="darkblue-panel">

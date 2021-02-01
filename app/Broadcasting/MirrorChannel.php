@@ -28,7 +28,9 @@ class MirrorChannel
     public function join(User $user)
     {
         broadcast(new Message('config', $user->getConfig(), $this->normalizeChannelName(request()->channel_name)));
-        $features_configs = $user->featuresConfiguration()->where('active', 1)->get();
+        $features_configs = $user->featuresConfiguration()
+            ->whereHas('feature')
+            ->where('active', 1)->get();
         foreach ($features_configs as $feature_config) {
             $feature = $feature_config->feature;
             $job = $feature->getJob($feature_config, $this->normalizeChannelName(request()->channel_name));
