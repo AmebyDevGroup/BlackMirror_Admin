@@ -9,6 +9,7 @@ use App\Notifications\ContactNotification;
 use App\Notifications\ContactSendNotification;
 use GuzzleHttp\Client;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Notification;
 use Illuminate\Support\Facades\Validator;
 
@@ -58,11 +59,23 @@ class AdminPanelController
 
     public function getChangelogPage()
     {
-        $client = new Client();
-        $response = $client->request('GET',
-            'https://api.github.com/repos/KrzychuW/BlackMirror/commits');
-        $data = json_decode($response->getBody()->getContents());
-        $commits = collect(array_slice($data, 0, 12))->pluck('commit');
+        $apps = [
+            'Panel Administracyjny' => 'https://api.github.com/repos/AmebyDevGroup/BlackMirror_Admin/commits',
+            'Aplikacja Mobilna' => 'https://api.github.com/repos/AmebyDevGroup/BlackMirror_Mobile/commits',
+            'Aplikacja Kliencka' => 'https://api.github.com/repos/AmebyDevGroup/BlackMirror_Client/commits'
+        ];
+        $commits = Cache::remember('App::commits', 3600, function () use ($apps) {
+            $commits = [];
+            foreach ($apps as $app => $url) {
+                $client = new Client();
+                $response = $client->request('GET',
+                    $url);
+                $data = json_decode($response->getBody()->getContents());
+                $commits[$app] = collect(array_slice($data, 0, 12))->pluck('commit');
+            }
+            return $commits;
+        });
+
         return view('panel.changelog', ['commits' => $commits]);
     }
 
