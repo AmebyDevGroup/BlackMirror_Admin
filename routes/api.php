@@ -24,12 +24,15 @@ Route::group([ 'namespace' => 'Api'], function () {
             Route::group(['prefix' => 'features'], function () {
                 Route::get('/', 'FeaturesController@index');
                 Route::get('/{feature}', 'FeaturesController@show');
+                Route::put('/{feature}', 'FeaturesController@update');
                 Route::post('setActive/{feature}/{active?}', 'FeaturesController@setFeatureActive');
             });
         });
         Route::group(['prefix' => 'receive_data'], function () {
             Route::post('sensor/{serial}', 'ReceiveDataController@saveSensorData');
             Route::post('camera/{serial}', 'ReceiveDataController@saveCameraData');
+            Route::post('backlight/{serial}', 'ReceiveDataController@saveBacklightData');
+            Route::post('wifi/{serial}', 'ReceiveDataController@saveWifiData');
         });
     });
 });

@@ -3,6 +3,7 @@
 namespace App\Console\Commands;
 
 use App\Jobs\SendCovidJob;
+use App\Mirror;
 use Illuminate\Console\Command;
 
 class SendCovid extends Command
@@ -12,7 +13,7 @@ class SendCovid extends Command
      *
      * @var string
      */
-    protected $signature = 'ws:covid';
+    protected $signature = 'ws:covid {mirrors_sn*}';
 
     /**
      * The console command description.
@@ -24,7 +25,6 @@ class SendCovid extends Command
     /**
      * Create a new command instance.
      *
-     * @return void
      */
     public function __construct()
     {
@@ -38,6 +38,18 @@ class SendCovid extends Command
      */
     public function handle()
     {
-        dispatch(new SendCovidJob());
+        $mirrors = Mirror::whereIn('serial', $this->argument('mirrors_sn'))
+            ->whereHas('features_configs', function ($q) {
+                $q->where('feature_id', 6);
+                $q->where('active', 1);
+            })->with('features_configs')->get();
+        foreach ($mirrors as $mirror) {
+            $feature_config = $mirror->features_configs->where('feature_id', 6)->first();
+            $feature = $feature_config->feature;
+            $job = $feature->getJob($feature_config, 'mirror.' . $mirror->serial);
+            if ($job) {
+                dispatch($job);
+            }
+        }
     }
 }

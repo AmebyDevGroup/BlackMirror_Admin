@@ -1030,8 +1030,11 @@ select{
 }
 
 #toast_container {
-    position: absolute;
-    bottom: 70px;
+    /*position: absolute;*/
+    /*bottom: 70px;*/
+    /*right: 15px;*/
+    position: fixed;
+    top: 75px;
     right: 15px;
 }
 #toast_container .toast {
@@ -1400,4 +1403,68 @@ table {
     color: #fff;
     background-color: #444c57;
     border-color: #fff;
+}
+
+.devices-table {
+    min-width: 700px;
+    width: 100%;
+}
+
+.device-row .ico {
+    font-size: 2em;
+}
+
+.device-row .wifi-power {
+    max-width: 26px;
+    max-height: 26px;
+}
+
+.device-row.wifi-0 svg .wifi-0 {
+    fill: #ffffff;
+}
+
+.device-row.wifi-1 svg .wifi-0,
+.device-row.wifi-1 svg .wifi-1 {
+    fill: #ffffff;
+}
+
+.device-row.wifi-2 svg .wifi-0,
+.device-row.wifi-2 svg .wifi-1,
+.device-row.wifi-2 svg .wifi-2 {
+    fill: #ffffff;
+}
+
+.device-row.wifi-3 svg .wifi-0,
+.device-row.wifi-3 svg .wifi-1,
+.device-row.wifi-3 svg .wifi-2,
+.device-row.wifi-3 svg .wifi-3 {
+    fill: #ffffff;
+}
+
+.device-row .ico.ico-power {
+    color: #ffffff;
+}
+
+.device-row .ico.light-on {
+    color: #ffffff;
+}
+
+.device-row svg g,
+.device-row.device-off svg g,
+.device-row.device-off svg .wifi-0,
+.device-row.device-off svg .wifi-1,
+.device-row.device-off svg .wifi-2,
+.device-row.device-off svg .wifi-3 {
+    fill: gray;
+}
+
+.device-row .ico,
+.device-row.device-off .ico {
+    color: gray;
+}
+
+@media (max-width: 768px) {
+    .devices-table button span {
+        display: none;
+    }
 }

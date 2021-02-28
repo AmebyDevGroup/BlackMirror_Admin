@@ -45,7 +45,7 @@ class User extends Authenticatable implements MustVerifyEmail
 
     public function featuresConfiguration(): \Illuminate\Database\Eloquent\Relations\HasMany
     {
-        return $this->hasMany(FeatureConfig::class)->with('feature')->with('feature');
+        return $this->hasMany(FeatureConfig::class)->has('feature')->with('feature');
     }
 
     public function getConfig()

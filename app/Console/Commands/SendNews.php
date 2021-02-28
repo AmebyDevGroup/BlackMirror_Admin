@@ -3,6 +3,7 @@
 namespace App\Console\Commands;
 
 use App\Jobs\SendNewsJob;
+use App\Mirror;
 use Illuminate\Console\Command;
 
 class SendNews extends Command
@@ -12,7 +13,7 @@ class SendNews extends Command
      *
      * @var string
      */
-    protected $signature = 'ws:news';
+    protected $signature = 'ws:news {mirrors_sn*}';
 
     /**
      * The console command description.
@@ -38,6 +39,18 @@ class SendNews extends Command
      */
     public function handle()
     {
-        dispatch(new SendNewsJob());
+        $mirrors = Mirror::whereIn('serial', $this->argument('mirrors_sn'))
+            ->whereHas('features_configs', function ($q) {
+                $q->where('feature_id', 3);
+                $q->where('active', 1);
+            })->with('features_configs')->get();
+        foreach ($mirrors as $mirror) {
+            $feature_config = $mirror->features_configs->where('feature_id', 3)->first();
+            $feature = $feature_config->feature;
+            $job = $feature->getJob($feature_config, 'mirror.' . $mirror->serial);
+            if ($job) {
+                dispatch($job);
+            }
+        }
     }
 }

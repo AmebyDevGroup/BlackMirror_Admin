@@ -13,20 +13,29 @@ class DataController extends BaseController
     public function getChangelog()
     {
         try {
-            $commits = Cache::remember('commits', 3600, function () {
-                $client = new Client();
-                $response = $client->request('GET',
-                    'https://api.github.com/repos/AmebyDevGroup/BlackMirror/commits');
-                $data = json_decode($response->getBody()->getContents());
-                return collect(array_slice($data, 0, 12))
-                    ->pluck('commit')
-                    ->map(function ($item) {
-                        return [
-                            'author' => $item->author->name,
-                            'date' => Carbon::parse($item->author->date)->format('Y-m-d H:i:s'),
-                            'message' => $item->message
-                        ];
-                    });
+            $apps = [
+                'Panel Administracyjny' => 'https://api.github.com/repos/AmebyDevGroup/BlackMirror_Admin/commits',
+                'Aplikacja Mobilna' => 'https://api.github.com/repos/AmebyDevGroup/BlackMirror_Mobile/commits',
+                'Aplikacja Kliencka' => 'https://api.github.com/repos/AmebyDevGroup/BlackMirror_Client/commits'
+            ];
+            $commits = Cache::remember('Api::commits', 3600, function () use ($apps) {
+                $commits = [];
+                foreach ($apps as $app => $url) {
+                    $client = new Client();
+                    $response = $client->request('GET',
+                        $url);
+                    $data = json_decode($response->getBody()->getContents());
+                    $commits[$app] = collect(array_slice($data, 0, 12))
+                        ->pluck('commit')
+                        ->map(function ($item) {
+                            return [
+                                'author' => $item->author->name,
+                                'date' => Carbon::parse($item->author->date)->format('Y-m-d H:i:s'),
+                                'message' => $item->message
+                            ];
+                        });
+                }
+                return $commits;
             });
 
             return response()->json([

@@ -36,7 +36,36 @@ class AdminPanelController
 
     public function getDevices()
     {
-        return view('panel.devices', ['devices' => auth()->user()->mirrors]);
+        $status = $this->getDevicesStatus();
+        return view('panel.devices', ['devices' => auth()->user()->mirrors, 'status' => $status]);
+    }
+
+    public function getShowPage()
+    {
+        return view('panel.show');
+    }
+
+    public function getDevicesStatus()
+    {
+        $cn_data = config('broadcasting.connections.' . config('broadcasting.default'));
+        $api_url = "https://ws.myblackmirror.pl/apps/{$cn_data['app_id']}/channels?auth_key={$cn_data['key']}";
+        $client = new Client();
+        $response = $client->request('GET', $api_url);
+        $data = json_decode($response->getBody()->getContents());
+        $mirrors_sn = array_map(function ($value) {
+            $channel_data = explode('.', $value);
+            if (isset($channel_data[1])) {
+                return $channel_data[1];
+            }
+        }, array_keys((array)$data->channels));
+
+        return auth()->user()->mirrors->pluck('', 'serial')->map(function ($value, $key) use ($mirrors_sn) {
+            if (in_array($key, $mirrors_sn)) {
+                return true;
+            } else {
+                return false;
+            }
+        });
     }
 
     public function getWebsocketsTestPage()

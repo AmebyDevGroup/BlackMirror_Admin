@@ -1,16 +1,15 @@
 @php
     $bodyClass = '';
-    $baseSectionClass = 'class=';
+    $baseSectionClass = '';
     if (($user = auth()->user()) && ($user->params['page-mode']??false)) {
         $bodyClass = "class=".$user->params["page-mode"];
-    }
-    if ($isAdmin = Str::startsWith(request()->getPathInfo(), '/admin')) {
-        $baseSectionClass = $baseSectionClass."admin";
     }
     if ($exception??false) {
         $baseSectionClass = $baseSectionClass."error ";
     }
-    if ($baseSectionClass == 'class=') $baseSectionClass = '';
+    if ($isAdmin = Str::startsWith(request()->getPathInfo(), '/admin')) {
+        $baseSectionClass = $baseSectionClass."admin";
+    }
 
 @endphp
     <!DOCTYPE html>
@@ -34,14 +33,14 @@
     <link href="https://use.fontawesome.com/releases/v5.13.0/css/all.css" rel="stylesheet">
     <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
     {{-- Custom styles for this template --}}
-    <link href="{{asset('css/style.css')}}" rel="stylesheet">
-    <link href="{{asset('css/style-responsive.css')}}" rel="stylesheet">
+    <link href="{{asset('css/style.css?04022020')}}" rel="stylesheet">
+    <link href="{{asset('css/style-responsive.css?04022020')}}" rel="stylesheet">
     {{-- Stepper --}}
     <link href="{{asset('css/materializer.css')}}" rel="stylesheet">
     <link href="{{asset('css/mste.css')}}" rel="stylesheet">
 </head>
 <body {{ $bodyClass }}>
-<section id="container" {{ $baseSectionClass }}>
+<section id="container" class="{{ $baseSectionClass }}">
     @include('partials.header')
     @if($isAdmin)
         @include('partials.sidebar')

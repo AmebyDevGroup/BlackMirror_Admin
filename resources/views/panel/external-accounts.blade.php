@@ -24,11 +24,15 @@
         <!-- /col-md-4-->
         <div class="col-lg-4 col-md-6 col-sm-6 mb dbp-p">
             <div class="darkblue-panel pn">
+                <div class="coming">
+                    <p class="com">COMING SOON ...</p>
+                </div>
                 <div class="darkblue-header">
                     <img class="loga" src="{{asset('img/Google_2015_logo.svg')}}" alt="Google"/>
                 </div>
-                <a href="{{route('google.signin')}}" class="btn btn-konta"> ZALOGUJ <i class="fas fas fa-sign-in-alt pl-1"></i></a>
-                <footer class="des">Logując się do konta Google, uzyskasz synchronizację z todo oraz kalendarzem</footer>
+                <a href="{{route('google.signin')}}" class="btn btn-konta"> ZALOGUJ <i
+                        class="fas fas fa-sign-in-alt pl-1"></i></a>
+                <footer class="des">Logowanie z Google wkrótce</footer>
             </div>
         </div>
         <!-- /col-md-4 -->
@@ -42,7 +46,7 @@
                 </div>
 
                 <button class="btn btn-konta" disabled>ZALOGUJ <i class="fas fas fa-sign-in-alt pl-1"></i></button>
-                <footer class="des" >Logowanie z facebookiem wkrótce</footer>
+                <footer class="des">Logowanie z Facebookiem wkrótce</footer>
             </div>
         </div>
         <!-- /col-md-4 -->

@@ -4,6 +4,8 @@ namespace App\Jobs;
 
 use App\Events\Message;
 use App\TokenStore\TokenCache;
+use Beta\Microsoft\Graph\Model\Calendar;
+use Beta\Microsoft\Graph\Model\Event;
 use Carbon\Carbon;
 use Exception;
 use Illuminate\Bus\Queueable;
@@ -63,7 +65,7 @@ class SendCalendarJob implements ShouldQueue
     {
         $graph = $this->initMicrosoftConnection();
         $calendars = $graph->createRequest('GET', '/me/calendars')
-            ->setReturnType(Model\Calendar::class)
+            ->setReturnType(Calendar::class)
             ->execute();
         $all_events = [];
         $now = Carbon::parse(Carbon::now()->format('Y-m-d'))->format('Y-m-d\TH:i:s.000001');
@@ -71,7 +73,7 @@ class SendCalendarJob implements ShouldQueue
         foreach ($calendars as $calendar) {
             $getEventsUrl = "/me/calendars/{$calendar->getId()}/calendarView?startDateTime={$now}&endDateTime={$two_weeks}";
             $events = $graph->createRequest('GET', $getEventsUrl)
-                ->setReturnType(Model\Event::class)
+                ->setReturnType(Event::class)
                 ->execute();
             if(!is_array($events)) continue;
             $all_events = array_merge($all_events, $events);

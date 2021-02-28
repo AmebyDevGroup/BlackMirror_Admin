@@ -2,7 +2,6 @@
 
 var Script = function() {
   //    sidebar dropdown menu auto scrolling
-
   jQuery('#sidebar .sub-menu > a').click(function() {
     var o = ($(this).offset());
     diff = 250 - o.top;
@@ -102,10 +101,7 @@ var Script = function() {
 
   $('.popovers').popover();
 
-
-
   // custom bar chart
-
   if ($(".custom-bar-chart")) {
     $(".bar").each(function() {
       var i = $(this).find(".value").html();
@@ -115,11 +111,9 @@ var Script = function() {
       }, 2000)
     })
   }
-
 }();
 
 jQuery(document).ready(function( $ ) {
-
     // Go to top
     $('.go-top').on('click', function(e) {
     e.preventDefault();
@@ -136,7 +130,9 @@ $(document).on('change click', '.set-feature-active', function() {
     $.post( $(this).data('href')+"/"+active, {
         _token: $('meta[name="csrf-token"]').attr('content')
     }).done(function( data ) {
-        console.log('OK');
+        $toast = $('.base_toast').clone();
+        $toast.find('.toast-header strong').html(data.message);
+        $toast.removeClass().addClass('toast').appendTo('#toast_container').toast('show');
     });
 })
 

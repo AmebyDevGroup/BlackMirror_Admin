@@ -1,5 +1,5 @@
 @php
-    $available_cities = App\WeatherCity::orderBy('name')->get();
+    $available_cities = App\WeatherCity::where('name', 'not like', 'Powiat%')->where('name', 'not like', 'Wojewodztwo%')->orderBy('name')->get();
     $current_weather = $config->data['city']??'';
 @endphp
 <form action="{{route('configuration.sendConfigurationForm', [$feature])}}" method="POST" class="send_configuration">

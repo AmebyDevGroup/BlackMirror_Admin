@@ -2,20 +2,11 @@
 
 namespace App\Console;
 
-use App\Console\Commands\SendAir;
-use App\Console\Commands\SendCalendar;
-use App\Console\Commands\SendNews;
-use App\Console\Commands\SendTasks;
-use App\Console\Commands\SendUserFeatures;
-use App\Console\Commands\SendWeather;
-use App\Console\Commands\SendCovid;
-
+use App\Console\Commands\SendData;
 use App\Console\Commands\RedisSubscribe;
-
-use App\User;
+use GuzzleHttp\Client;
 use Illuminate\Console\Scheduling\Schedule;
 use Illuminate\Foundation\Console\Kernel as ConsoleKernel;
-use App\Jobs\SendTimeJob;
 
 class Kernel extends ConsoleKernel
 {
@@ -25,14 +16,7 @@ class Kernel extends ConsoleKernel
      * @var array
      */
     protected $commands = [
-        SendTasks::class,
-        SendCalendar::class,
-        SendNews::class,
-        SendWeather::class,
-        SendAir::class,
-        SendCovid::class,
-        SendUserFeatures::class,
-        RedisSubscribe::class
+        SendData::class
     ];
 
     /**
@@ -43,15 +27,34 @@ class Kernel extends ConsoleKernel
      */
     protected function schedule(Schedule $schedule)
     {
-        // $users = User::whereNotNull('email_verified_at')->get();
-        // foreach($users as $key => $user) {
-        //     $features_configs = $user->featuresConfiguration()->where('active', 1)->get();
-        //     foreach($features_configs as $feature_config) {
-        //         $feature = $feature_config->feature;
-        //         $job = $feature->getJob($feature_config);
-        //         $schedule->job($job)->cron($feature->crontab);
-        //     }
-        // }
+        $cn_data = config('broadcasting.connections.' . config('broadcasting.default'));
+        $api_url = "https://ws.myblackmirror.pl/apps/{$cn_data['app_id']}/channels?auth_key={$cn_data['key']}";
+        $client = new Client();
+        $response = $client->request('GET', $api_url);
+        $data = json_decode($response->getBody()->getContents());
+        $mirrors_sn = array_map(function ($value) {
+            $channel_data = explode('.', $value);
+            if (isset($channel_data[1])) {
+                return $channel_data[1];
+            }
+        }, array_keys((array)$data->channels));
+        if (count($mirrors_sn)) {
+            // Tasks
+//        $schedule->command(SendDataToMirrors::class, [$mirrors_sn, '--id' => 1])->cron('* * * * *');
+            // Calendar
+//        $schedule->command(SendDataToMirrors::class, [$mirrors_sn, '--id' => 2])->cron('*/15 * * * *');
+            // News
+            $schedule->command(SendData::class, [$mirrors_sn, '--id' => 3])->cron('0 */3 * * *');
+            // Weather
+            $schedule->command(SendData::class, [$mirrors_sn, '--id' => 4])->cron('10 * * * *');
+            // Air
+            $schedule->command(SendData::class, [$mirrors_sn, '--id' => 5])->cron('20 * * * *');
+            // Covid
+            $schedule->command(SendData::class, [$mirrors_sn, '--id' => 6])->cron('40 */3 * * *');
+            // Sensors
+            $schedule->command(SendData::class, [$mirrors_sn, '--id' => 9])->cron('*/15 * * * *');
+        }
+
     }
 
     /**

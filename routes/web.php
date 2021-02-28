@@ -11,9 +11,7 @@
 |
 */
 
-use Illuminate\Notifications\Messages\MailMessage;
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\Lang;
 use Illuminate\Support\Facades\Route;
 
 Auth::routes(['register' => true, 'verify' => true]);
@@ -28,12 +26,20 @@ Route::prefix('admin')->middleware('auth')->group(function () {
         ->name('admin.getExternalAccounts');
     Route::get('devices', 'AdminPanelController@getDevices')
         ->name('admin.getDevices');
+    Route::get('devices/status', 'AdminPanelController@getDevicesStatus')
+        ->name('admin.getDevicesStatus');
+    Route::get('devices/{serial}/backlight/{status}', 'ConfigurationController@sendBacklightMessage')
+        ->name('admin.devices.backlight');
+    Route::get('devices/{serial}/update/{status}', 'ConfigurationController@sendSystemUpdateMessage')
+        ->name('admin.devices.update');
     Route::get('test-websockets', 'AdminPanelController@getWebsocketsTestPage')
         ->name('admin.getWebsocketsTest');
     Route::get('help', 'AdminPanelController@getHelpPage')
         ->name('admin.getHelp');
     Route::get('changelog', 'AdminPanelController@getChangelogPage')
         ->name('admin.getChangelog');
+    Route::get('show', 'AdminPanelController@getShowPage')
+        ->name('admin.show');
     Route::get('info', 'AdminPanelController@getInfoPage')
         ->name('admin.info');
     Route::get('contact', 'AdminPanelController@getContactForm')

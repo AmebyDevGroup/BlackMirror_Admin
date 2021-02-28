@@ -103,11 +103,13 @@
         margin-bottom: 5px;
     }
     #toast_container {
-        position:fixed;
-        bottom:15px;
+        position: fixed;
+        bottom: 15px;
         width: 75%;
         left: 50%;
         margin-left: -37.5%;
+        top: auto;
+        right: auto;
     }
 
 }

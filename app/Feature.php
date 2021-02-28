@@ -53,10 +53,50 @@ class Feature extends Model
         return view('panel.features.default', ['feature' => $this, 'config' => $this->getConfig]);
     }
 
+    public function getConfigRule()
+    {
+        switch ($this->slug) {
+            case 'tasks':
+                return [
+                    'provider' => 'required',
+                    'directory' => 'required'
+                ];
+            case 'calendar':
+                return [
+                    'provider' => 'required'
+                ];
+            case 'news':
+                return [
+                    'rss' => 'required'
+                ];
+            case 'weather':
+                return [
+                    'city' => 'required'
+                ];
+            case 'air':
+                return [
+                    'station' => 'required'
+                ];
+            case 'covid':
+                return [
+                    'type' => 'required|in:1,2,3'
+                ];
+            case 'time':
+                return [
+                    'timezone' => 'required',
+                    'time-format' => 'required|in:HH:mm,hh:mm A'
+                ];
+            case 'sensors':
+            case 'camera':
+            default:
+                return [];
+        }
+    }
+
     public function getJob($feature_config, $channel_name)
     {
-        $job_class = 'App\Jobs\Send'.Str::studly($this->slug).'Job';
-        if(class_exists($job_class)){
+        $job_class = 'App\Jobs\Send' . Str::studly($this->slug) . 'Job';
+        if (class_exists($job_class)) {
             return new $job_class($feature_config, $channel_name);
         }
         return false;

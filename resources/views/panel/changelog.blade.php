@@ -14,7 +14,10 @@
                         @foreach($commits as $commit)
                             <div class="desc text-left">
                                 <div class="thumb">
-                                    <span class="badge bg-theme"><i class="fa fa-history"></i><muted> {{\Carbon\Carbon::parse($commit->author->date)->format('Y-m-d H:i:s')}}</muted></span>
+                                    <span class="badge bg-theme">
+                                        <i class="fa fa-history"></i>
+                                        <muted> {{\Carbon\Carbon::parse($commit->author->date)->format('Y-m-d H:i:s')}}</muted>
+                                    </span>
                                 </div>
                                 <div class="details">
                                     <a href="{{$commit->url}}">{{$commit->message}}</a><br/>

@@ -9,6 +9,7 @@ use Carbon\CarbonTimeZone;
 use Exception;
 use Carbon\Carbon;
 use GuzzleHttp\Client;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Routing\Controller as BaseController;
 
@@ -84,6 +85,19 @@ class FeaturesController extends BaseController
                 'config_data' => $response
             ]
         ], 200);
+    }
+
+    public function update(Request $request, Feature $feature)
+    {
+        $rules = $feature->getConfigRules();
+        $request->validate($rules);
+        $feature->getConfig()->update(['data' => $request->all()]);
+        if ($feature->getConfig->active) {
+            foreach (auth()->user()->mirrors as $mirror) {
+                dispatch($feature->getJob($feature->getConfig, 'mirror.' . $mirror->serial));
+            }
+        }
+        return response()->json(['status' => 'success', 'message' => "Pomyślnie zapisano konfigurację"]);
     }
 
     public function setFeatureActive(Feature $feature, $active = 1)

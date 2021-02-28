@@ -5,6 +5,7 @@ namespace App\Jobs;
 use App\Events\Message;
 use App\MirrorConfig;
 use App\TokenStore\TokenCache;
+use Beta\Microsoft\Graph\Model\OutlookTask;
 use Carbon\Carbon;
 use Exception;
 use Illuminate\Bus\Queueable;
@@ -73,7 +74,7 @@ class SendTasksJob implements ShouldQueue
         );
         $getEventsUrl = '/me/outlook/taskFolders/' . $this->directory . '/tasks?' . http_build_query($queryParams);
         $tasks = $graph->createRequest('GET', $getEventsUrl)
-            ->setReturnType(Model\OutlookTask::class)
+            ->setReturnType(OutlookTask::class)
             ->execute();
         $formattedTasks = [];
         foreach ($tasks as $task) {

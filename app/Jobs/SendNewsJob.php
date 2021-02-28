@@ -38,7 +38,7 @@ class SendNewsJob implements ShouldQueue
     public function handle()
     {
         try {
-            $data = Cache::remember('JOB::SendNewsData', 7200, function () {
+            $data = Cache::remember('JOB::SendNewsData_' . md5($this->rss), 7200, function () {
                 $feed = Feeds::make($this->rss, 5, true); // if RSS Feed has invalid mime types, force to read
                 $data = array(
                     'title' => $feed->get_title(),
