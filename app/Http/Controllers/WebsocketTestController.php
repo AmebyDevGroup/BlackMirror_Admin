@@ -6,11 +6,12 @@ use App\Events\Message;
 use App\Feature;
 use App\TokenStore\TokenCache;
 use App\User;
+use Beta\Microsoft\Graph\Model\OutlookTask;
 use Carbon\Carbon;
 use GuzzleHttp\Client;
-use Microsoft\Graph\Beta\Model;
 use Microsoft\Graph\Graph;
 use Feeds;
+use Microsoft\Graph\Model\TodoTask;
 
 class WebsocketTestController extends Controller
 {
@@ -70,13 +71,13 @@ class WebsocketTestController extends Controller
                 ];
             }
             broadcast(new Message('air', $airInfo));
-            dump(['type'=>'air', 'data'=>$airInfo]);
+            dump(['type' => 'air', 'data' => $airInfo]);
         } catch (Exception $e) {
             broadcast(new Message('air', [
                 "status" => 'failed',
                 "message" => $e->getMessage()
             ]));
-            dump(['type'=>'air', 'data'=>[
+            dump(['type' => 'air', 'data' => [
                 "status" => 'failed',
                 "message" => $e->getMessage()
             ]]);
@@ -96,13 +97,13 @@ class WebsocketTestController extends Controller
                     break;
             }
             broadcast(new Message('calendar', $calendar));
-            dump(['type'=>'calendar', 'data'=>$calendar]);
+            dump(['type' => 'calendar', 'data' => $calendar]);
         } catch (\Exception $e) {
             broadcast(new Message('calendar', [
                 "status" => 'failed',
                 "message" => $e->getMessage()
             ]));
-            dump(['type'=>'calendar', 'data'=>[
+            dump(['type' => 'calendar', 'data' => [
                 "status" => 'failed',
                 "message" => $e->getMessage()
             ]]);
@@ -136,7 +137,7 @@ class WebsocketTestController extends Controller
         $data['items'] = $data['prepared_items'];
         unset($data['prepared_items']);
         broadcast(new Message('news', $data));
-        dump(['type'=>'news', 'data'=>$data]);
+        dump(['type' => 'news', 'data' => $data]);
     }
 
     public function SendTasks($feature)
@@ -152,13 +153,13 @@ class WebsocketTestController extends Controller
                     break;
             }
             broadcast(new Message('tasks', $tasks));
-            dump(['type'=>'tasks', 'data'=>$tasks]);
+            dump(['type' => 'tasks', 'data' => $tasks]);
         } catch (\Exception $e) {
             broadcast(new Message('tasks', [
                 "status" => 'failed',
                 "message" => $e->getMessage()
             ]));
-            dump(['type'=>'tasks', 'data'=>[
+            dump(['type' => 'tasks', 'data' => [
                 "status" => 'failed',
                 "message" => $e->getMessage()
             ]]);
@@ -189,7 +190,7 @@ class WebsocketTestController extends Controller
             'time' => Carbon::parse($data->dt)->format('Y-m-d H:i:s'),
         ];
         broadcast(new Message('current_weather', $weatherInfo));
-        dump(['type'=>'current_weather', 'data'=>$weatherInfo]);
+        dump(['type' => 'current_weather', 'data' => $weatherInfo]);
     }
 
     public function SendCovid($feature)
@@ -203,7 +204,7 @@ class WebsocketTestController extends Controller
         $total_confirmed = 0;
         $total_deaths = 0;
         $total_recovered = 0;
-        foreach($collection as $country) {
+        foreach ($collection as $country) {
             $total_confirmed += (int)$country->TotalConfirmed;
             $total_deaths += (int)$country->TotalDeaths;
             $total_recovered += (int)$country->TotalRecovered;
@@ -211,14 +212,14 @@ class WebsocketTestController extends Controller
         $poland = $collection->where('Country', 'Poland')->first();
 
         $covidInfo = [];
-        if($feature->data['type'] == 1 || $feature->data['type'] == 3) {
+        if ($feature->data['type'] == 1 || $feature->data['type'] == 3) {
             $covidInfo['global'] = [
                 'confirmed' => $total_confirmed,
                 'deaths' => $total_deaths,
                 'recovered' => $total_recovered,
             ];
         }
-        if($feature->data['type'] == 2 || $feature->data['type'] == 3) {
+        if ($feature->data['type'] == 2 || $feature->data['type'] == 3) {
             $covidInfo['poland'] = [
                 'confirmed' => $poland->TotalConfirmed,
                 'deaths' => $poland->TotalDeaths,
@@ -226,7 +227,7 @@ class WebsocketTestController extends Controller
             ];
         }
         broadcast(new Message('covid', $covidInfo));
-        dump(['type'=>'covid', 'data'=>$covidInfo]);
+        dump(['type' => 'covid', 'data' => $covidInfo]);
     }
 
     public function SendTime($feature)
@@ -237,9 +238,8 @@ class WebsocketTestController extends Controller
             'time_format' => $feature->data['time-format']
         ];
         broadcast(new Message('time', $timeInfo, 'mirror.1231'));
-        dump(['type'=>'time', 'data'=>$timeInfo]);
+        dump(['type' => 'time', 'data' => $timeInfo]);
     }
-
 
 
     protected function getMicrosoftTasks($feature)
@@ -251,20 +251,18 @@ class WebsocketTestController extends Controller
             '$top' => 20,
             '$filter' => "status ne 'completed'"
         );
-        $getEventsUrl = '/me/outlook/taskFolders/' . $directory . '/tasks?' . http_build_query($queryParams);
-
+        $getEventsUrl = '/me/todo/lists/' . $directory . '/tasks?' . http_build_query($queryParams);
         $tasks = $graph->createRequest('GET', $getEventsUrl)
-            ->setReturnType(Model\OutlookTask::class)
+            ->setReturnType(TodoTask::class)
             ->execute();
-
         $formattedTasks = [];
         foreach ($tasks as $task) {
             $this_task = [
-                'owner' => $task->getOwner(),
-                'title' => $task->getSubject(),
+                'title' => $task->getTitle(),
                 'description' => $task->getBody()->getContent(),
                 'priority' => $task->getImportance()->value(),
-                'deadline_at' => is_array($deadline_at = $task->getDueDateTime()->getProperties()) ?
+                'status' => $task->getStatus()->value(),
+                'deadline_at' => $task->getDueDateTime() && is_array($deadline_at = $task->getDueDateTime()->getProperties()) ?
                     Carbon::parse($deadline_at['dateTime'])->format('Y-m-d H:i') : null,
                 'created_at' => Carbon::parse($task->getCreatedDateTime())->format('Y-m-d H:i'),
                 'updated_at' => Carbon::parse($task->getLastModifiedDateTime())->format('Y-m-d H:i'),
@@ -288,7 +286,7 @@ class WebsocketTestController extends Controller
             $events = $graph->createRequest('GET', $getEventsUrl)
                 ->setReturnType(Model\Event::class)
                 ->execute();
-            if(!is_array($events)) continue;
+            if (!is_array($events)) continue;
             $all_events = array_merge($all_events, $events);
         }
         $formatedEvents = [];
@@ -305,7 +303,7 @@ class WebsocketTestController extends Controller
             $formatedEvents[] = $this_event;
         }
         $formatedEvents = collect($formatedEvents)->sortBy('full_start_date')->values();
-        if($formatedEvents->count() > 3){
+        if ($formatedEvents->count() > 3) {
             $endDate = $formatedEvents->get(3)['start'];
             $formatedEvents = $formatedEvents->where('start', '<=', $endDate);
         }

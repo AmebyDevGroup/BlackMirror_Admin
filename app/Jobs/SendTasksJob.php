@@ -5,7 +5,6 @@ namespace App\Jobs;
 use App\Events\Message;
 use App\MirrorConfig;
 use App\TokenStore\TokenCache;
-use Beta\Microsoft\Graph\Model\OutlookTask;
 use Carbon\Carbon;
 use Exception;
 use Illuminate\Bus\Queueable;
@@ -13,8 +12,8 @@ use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
-use Microsoft\Graph\Beta\Model;
 use Microsoft\Graph\Graph;
+use Microsoft\Graph\Model\TodoTask;
 
 class SendTasksJob implements ShouldQueue
 {
@@ -72,18 +71,24 @@ class SendTasksJob implements ShouldQueue
             '$top' => 20,
             '$filter' => "status ne 'completed'"
         );
-        $getEventsUrl = '/me/outlook/taskFolders/' . $this->directory . '/tasks?' . http_build_query($queryParams);
+//        Graph BETA
+//        $getEventsUrl = '/me/outlook/taskFolders/' . $this->directory . '/tasks?' . http_build_query($queryParams);
+//        $tasks = $graph->createRequest('GET', $getEventsUrl)
+//            ->setReturnType(OutlookTask::class)
+//            ->execute();
+//        Graph v1.0
+        $getEventsUrl = '/me/todo/lists/' . $this->directory . '/tasks?' . http_build_query($queryParams);
         $tasks = $graph->createRequest('GET', $getEventsUrl)
-            ->setReturnType(OutlookTask::class)
+            ->setReturnType(TodoTask::class)
             ->execute();
         $formattedTasks = [];
         foreach ($tasks as $task) {
             $this_task = [
-                'owner' => $task->getOwner(),
-                'title' => $task->getSubject(),
+                'title' => $task->getTitle(),
                 'description' => $task->getBody()->getContent(),
                 'priority' => $task->getImportance()->value(),
-                'deadline_at' => is_array($deadline_at = $task->getDueDateTime()->getProperties()) ?
+                'status' => $task->getStatus()->value(),
+                'deadline_at' => $task->getDueDateTime() && is_array($deadline_at = $task->getDueDateTime()->getProperties()) ?
                     Carbon::parse($deadline_at['dateTime'])->format('Y-m-d H:i') : null,
                 'created_at' => Carbon::parse($task->getCreatedDateTime())->format('Y-m-d H:i'),
                 'updated_at' => Carbon::parse($task->getLastModifiedDateTime())->format('Y-m-d H:i'),
