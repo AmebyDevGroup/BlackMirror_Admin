@@ -220,13 +220,25 @@ function getTasksDirectory(selected = '')
 function setPageMode(url) {
     let mode = 'light-mode';
     $('body').toggleClass('dark-mode');
-    if($('body').hasClass('dark-mode')) {
+    if ($('body').hasClass('dark-mode')) {
         mode = 'dark-mode';
         $('.night .ico').removeClass("fas").addClass("far")
     } else {
         $('.night .ico').removeClass("far").addClass("fas")
     }
-    $.post(url+"/"+mode, {
+    $.post(url + "/" + mode, {
         _token: $('meta[name="csrf-token"]').attr('content')
     })
 }
+
+
+$('#deleteDeviceModal').on('show.bs.modal', function (event) {
+    var button = $(event.relatedTarget)
+    var action = button.data('action')
+    var name = button.data('name')
+    var serial = button.data('serial')
+    var modal = $(this)
+    modal.find('.device-name').text(name)
+    modal.find('.device-serial').text(serial)
+    modal.find('form').attr('action', action)
+})

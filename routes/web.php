@@ -26,6 +26,10 @@ Route::prefix('admin')->middleware('auth')->group(function () {
         ->name('admin.getExternalAccounts');
     Route::get('devices', 'AdminPanelController@getDevices')
         ->name('admin.getDevices');
+    Route::post('devices', 'AdminPanelController@addDevice')
+        ->name('admin.addDevice');
+    Route::delete('devices/{mirror}', 'AdminPanelController@removeDevice')
+        ->name('admin.removeDevice');
     Route::get('devices/status', 'AdminPanelController@getDevicesStatus')
         ->name('admin.getDevicesStatus');
     Route::get('devices/{serial}/backlight/{status}', 'ConfigurationController@sendBacklightMessage')

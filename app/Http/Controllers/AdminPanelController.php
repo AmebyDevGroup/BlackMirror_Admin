@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 
 
 use App\Feature;
+use App\Mirror;
 use App\Notifications\ContactNotification;
 use App\Notifications\ContactSendNotification;
 use GuzzleHttp\Client;
@@ -38,6 +39,26 @@ class AdminPanelController
     {
         $status = $this->getDevicesStatus();
         return view('panel.devices', ['devices' => auth()->user()->mirrors, 'status' => $status]);
+    }
+
+    public function addDevice(Request $request)
+    {
+        $request->validate([
+            'serial' => 'required|unique:mirrors',
+            'name' => 'required'
+        ]);
+        $user = auth()->user();
+        $user->mirrors()->create($request->all());
+
+        return redirect()->back()->with(['flash.message' => 'Twoje urządzenie zostało dodane pomyślnie']);
+    }
+
+    public function removeDevice(Mirror $mirror)
+    {
+        $mirror->update(['serial' => time() . '_#_' . $mirror->serial]);
+        $mirror->delete();
+
+        return redirect()->back()->with(['flash.message' => 'Twoje urządzenie zostało pomyślnie usunięte']);
     }
 
     public function getShowPage()

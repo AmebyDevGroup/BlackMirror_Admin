@@ -18,7 +18,11 @@
             -webkit-transform-origin: top center;
             transform-origin: top center;
             margin-bottom: -1344px;
-            padding-top: 70px;
+            margin-top: 70px;
+        }
+
+        #frame.light-on {
+            box-shadow: 0 0 20px 5px #fff;
         }
 
         p.mobile {
@@ -46,6 +50,7 @@
                width=1080
                height=1920
                onerror="alert('Error Loading');"
+               class="light-on">
         <br>
         <a href="https://show.myblackmirror.pl" class="link savebtn">
             <p class="desktop"><i class="fa fa-expand"></i>&nbsp;&nbsp;POWIĘKSZ</p>

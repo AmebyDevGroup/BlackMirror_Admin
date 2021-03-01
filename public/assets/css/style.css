@@ -50,7 +50,12 @@ a, a:hover, a:focus {
 
 /* Bootstrap Modifications */
 .modal-header {
-	background: #4ECDC4;
+    background: #4ECDC4;
+}
+
+.dark-mode .modal-header {
+    background: #006d65;
+    color: #ccc;
 }
 
 .modal-title {
@@ -1461,6 +1466,10 @@ table {
 .device-row .ico,
 .device-row.device-off .ico {
     color: gray;
+}
+
+.modal-content {
+    background-color: #444c57;
 }
 
 @media (max-width: 768px) {

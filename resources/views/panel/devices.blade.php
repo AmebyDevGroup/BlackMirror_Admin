@@ -2,37 +2,16 @@
 @section('content')
     <h4 class="header-main">TWOJE URZĄDZENIA</h4>
     <hr>
+    @if ($errors->any())
+        <div class="alert alert-danger">
+            <ul>
+                @foreach ($errors->all() as $error)
+                    <li>{{ $error }}</li>
+                @endforeach
+            </ul>
+        </div>
+    @endif
     <section id="devices" class="dbp-p">
-        {{--        <h4 class="header-main">DODAJ URZĄDZENIE</h4>--}}
-        {{--        <div class="d-flex justify-content-center table-responsive">--}}
-        {{--            <table class="col-md-12 darkblue-panel pn">--}}
-        {{--                <thead class="darkblue-header">--}}
-        {{--                <tr>--}}
-        {{--                    <th class="w-25">NAZWA</th>--}}
-        {{--                    <th class="w-25">NUMER SERYJNY</th>--}}
-        {{--                    <th class="w-25">STAN</th>--}}
-        {{--                    <th class="w-25">AKCJA</th>--}}
-        {{--                </tr>--}}
-        {{--                </thead>--}}
-        {{--                <tbody>--}}
-        {{--                <tr>--}}
-        {{--                    <td class="w-25">--}}
-        {{--                        <input type="text" class="form-control  devi" placeholder="WPISZ NAZWĘ" name="name"--}}
-        {{--                               required></td>--}}
-        {{--                    <td class="w-25">--}}
-        {{--                        <input type="text" class="form-control  devi" placeholder="WPISZ SN" name="name"--}}
-        {{--                               required>--}}
-        {{--                    </td>--}}
-        {{--                    <td class="w-25">--}}
-        {{--                        <input type="checkbox" class="set-feature-active" data-toggle="toggle" data-on="ON"--}}
-        {{--                               data-off="OFF"--}}
-        {{--                               data-onstyle="info" data-offstyle="danger"--}}
-        {{--                               data-href="" value="1"></td>--}}
-        {{--                    <td class="w-25"><i class="fa fa-plus"></i> DODAJ</td>--}}
-        {{--                </tr>--}}
-        {{--                </tbody>--}}
-        {{--            </table>--}}
-        {{--        </div>--}}
         <div class="table-responsive">
             <table class="darkblue-panel pn devices-table">
                 <thead class="darkblue-header">
@@ -109,7 +88,12 @@
                         <td colspan="2">
                             <button class="btn link" title="Zapisz"><i class="fa fa-save"></i><span> Zapisz</span>
                             </button>
-                            <button class="btn link" title="Usuń"><i class="fa fa-trash"></i><span> Usuń</span></button>
+                            <button class="btn link" title="Usuń" data-toggle="modal" data-target="#deleteDeviceModal"
+                                    data-action="{{ route('admin.removeDevice', [$device]) }}"
+                                    data-name="{{$device->name}}"
+                                    data-serial="{{$device->serial}}">
+                                <i class="fa fa-trash"></i><span> Usuń</span>
+                            </button>
                             <a href="{{ route('admin.devices.update', [$device->serial, 'true']) }}" class="btn link"
                                title="Aktualizuj"><i
                                     class="fa fa-download"></i><span> Aktualizuj</span></a>
@@ -119,7 +103,58 @@
                 </tbody>
             </table>
         </div>
-        <a href="" style="float:right;margin-right:30px;padding-top:10px;font-size:15px;"
-           class="link"><i class="fa fa-plus"></i> DODAJ URZĄDZENIE</a>
+        <a type="button" class="link" data-toggle="modal" data-target="#newDeviceModal"
+           style="float:right;margin-right:30px;padding-top:10px;font-size:15px;">
+            <i class="fa fa-plus"></i> DODAJ URZĄDZENIE
+        </a>
     </section>
+    <div class="modal fade" id="newDeviceModal" tabindex="-1" role="dialog"
+         aria-labelledby="newDeviceModalTitle" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="newDeviceModalTitle">NOWE URZĄDZENIE</h5>
+                </div>
+                <form method="POST" action="{{ route('admin.addDevice') }}">
+                    @csrf
+                    <div class="modal-body">
+                        <div class="form-group">
+                            <label for="recipient-name" class="col-form-label">Nazwa:</label>
+                            <input type="text" class="form-control devi" placeholder="WPISZ NAZWĘ" name="name" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="message-text" class="col-form-label">Numer seryjny:</label>
+                            <input type="text" class="form-control  devi" placeholder="WPISZ SN" name="serial" required>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-dismiss="modal">Anuluj</button>
+                        <button type="submit" class="btn btn-info">Zapisz</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+    <div class="modal fade" id="deleteDeviceModal" tabindex="-1" role="dialog" aria-labelledby="deleteDeviceModalLabel"
+         aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="newDeviceModalTitle">USUŃ URZĄDZENIE</h5>
+                </div>
+                <div class="modal-body">
+                    Czy na pewno chcesz usunąć urządzenie "<span class="device-name"></span>" o numerze seryjnym "<span
+                        class="device-serial"></span>"?
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Anuluj</button>
+                    <form action="" method="POST">
+                        @csrf
+                        @method('DELETE')
+                        <button type="submit" class="btn btn-info">Usuń</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
 @endsection
